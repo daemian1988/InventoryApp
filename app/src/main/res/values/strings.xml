@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Inventory App</string>
+    <string name="addProductTitle">Add Product</string>
+    <string name="productDetailTitle">Product</string>
+    <string name="add">Add product</string>
+    <string name="noItem">Click on add product button to start</string>
+    <string name="productN">Product name:</string>
+    <string name="productQuantity">Product quantity:</string>
+    <string name="productPrice">Product price:</string>
+    <string name="itemSold">Num of item Sold:</string>
+</resources>
