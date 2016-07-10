@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
 
     ArrayList<ProductClass> productStorage;
     ListView lv;
+    ProductAdapter adapter;
     ProductDbHelper db = new ProductDbHelper(this);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
             lv.setVisibility(View.VISIBLE);
 
             productStorage = db.getAllContacts();
-            ProductAdapter adapter = new ProductAdapter(MainActivity.this, productStorage);
+            adapter = new ProductAdapter(MainActivity.this, productStorage);
             lv.setAdapter(adapter);
 
             lv.setOnItemClickListener(new AdapterView.OnItemClickListener(){
@@ -78,7 +79,8 @@ public class MainActivity extends AppCompatActivity {
 
         if (resultCode == RESULT_OK) {
             productStorage = db.getAllContacts();
-            ProductAdapter adapter = new ProductAdapter(MainActivity.this, productStorage);
+            adapter = new ProductAdapter(MainActivity.this, productStorage);
+            adapter.notifyDataSetChanged();
             lv.setAdapter(adapter);
         }
     }

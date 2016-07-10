@@ -15,6 +15,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -43,42 +44,14 @@ public class ProductDetails extends AppCompatActivity {
         textViewProductQty.setText(Integer.toString(pc.getProductQty()));
         textViewProductSold.setText(Integer.toString(pc.getProductQtySold()));
 
-/*try{
-    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.parse(pc.getProductImgLink()));
-    // Log.d(TAG, String.valueOf(bitmap));
-
-    ImageView imageView = (ImageView) findViewById(R.id.imageView);
-    iv.setImageBitmap(bitmap);
-
-}
-catch(Exception e)
-{
-
-}*/
-
-
-        String selectedImagePath = locatePath(Uri.parse(pc.getProductImgLink()));
+        String selectedImagePath = pc.getProductImgLink();
+        Log.d(ProductDetails.class.getSimpleName(), "Path exists " +pc.getProductImgLink());
         File imgFile = new File(selectedImagePath);
         if (imgFile.exists()) {
             Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
             iv.setImageBitmap(myBitmap);
         }
 
-    }
-
-    public String locatePath(Uri uri) {
-        if (uri == null) {
-            return null;
-        }
-        grantUriPermission("com.example.android.inventoryapp", uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        String[] projection = {MediaStore.Images.Media.DATA};
-        Cursor cursor = managedQuery(uri, projection, null, null, null);
-        if (cursor != null) {
-            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            cursor.moveToFirst();
-            return cursor.getString(column_index);
-        }
-        return uri.getPath();
     }
 
     @Override

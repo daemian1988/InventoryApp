@@ -73,12 +73,11 @@ public class AddProduct extends AppCompatActivity {
                         pc.setProductName(prodName);
                         pc.setProductPrice(Float.parseFloat(prodPrice));
                         pc.setProductQty(Integer.parseInt(prodQty));
-                        pc.setProductImgLink(uri.toString());
+                        pc.setProductImgLink(locatePath(uri));
+                        Log.d(AddProduct.class.getSimpleName(), "Path exists " +pc.getProductImgLink());
+
                         pc.setProductQtySold(0);
                         db.addProduct(pc);
-
-                        String test = locatePath(uri);
-                        String test2 = test;
 
                         Intent i = new Intent();
                         setResult(RESULT_OK, i);
@@ -117,7 +116,7 @@ public class AddProduct extends AppCompatActivity {
             return cursor.getString(column_index);
         }
 
-        return uri.getPath();
+         return uri.getPath();
     }
 
     private void checkWriteToExternalPerms() {
