@@ -3,29 +3,25 @@ package com.example.android.inventoryapp;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.io.File;
 import java.io.IOException;
 
+import static android.app.Activity.RESULT_OK;
 import static com.example.android.inventoryapp.R.id.addProdErrMsg;
 
 public class AddProduct extends AppCompatActivity {
@@ -35,6 +31,7 @@ public class AddProduct extends AppCompatActivity {
     ProductDbHelper db = new ProductDbHelper(this);
     Uri uri;
     TextView errorMsg;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,41 +39,38 @@ public class AddProduct extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        Button btnAddImaget = (Button)findViewById(R.id.addImage);
-        Button btnSaveProduct = (Button)findViewById(R.id.saveProd);
-         errorMsg = (TextView)findViewById(addProdErrMsg);
+        Button btnAddImaget = (Button) findViewById(R.id.addImage);
+        Button btnSaveProduct = (Button) findViewById(R.id.saveProd);
+        errorMsg = (TextView) findViewById(addProdErrMsg);
 
-        final EditText editProdName = (EditText)findViewById(R.id.editProdName);
-        final EditText editProdPrice = (EditText)findViewById(R.id.editProdPrice);
-        final EditText editProdQty = (EditText)findViewById(R.id.editProdQuantity);
+        final EditText editProdName = (EditText) findViewById(R.id.editProdName);
+        final EditText editProdPrice = (EditText) findViewById(R.id.editProdPrice);
+        final EditText editProdQty = (EditText) findViewById(R.id.editProdQuantity);
+        final EditText editEmail = (EditText) findViewById(R.id.editSupEmail);
 
-        btnSaveProduct.setOnClickListener(new View.OnClickListener(){
+        btnSaveProduct.setOnClickListener(new View.OnClickListener() {
 
-            public void onClick(View view)
-            {
+            public void onClick(View view) {
 
 
-                if(validateField(editProdName,editProdPrice,editProdQty ))
-                {
-                    if(uri == null)
-                    {
+                if (validateField(editProdName, editProdPrice, editProdQty, editEmail)) {
+                    if (uri == null) {
                         errorMsg.setText("Image required!!");
-                    }
-                    else {
+                    } else {
 
                         errorMsg.setText("");
                         String prodName = editProdName.getText().toString();
                         String prodPrice = editProdPrice.getText().toString();
                         String prodQty = editProdQty.getText().toString();
+                        String email = editEmail.getText().toString();
 
                         ProductClass pc = new ProductClass();
                         pc.setProductName(prodName);
                         pc.setProductPrice(Float.parseFloat(prodPrice));
                         pc.setProductQty(Integer.parseInt(prodQty));
-                        pc.setProductImgLink(locatePath(uri));
-                        Log.d(AddProduct.class.getSimpleName(), "Path exists " +pc.getProductImgLink());
-
+                        pc.setProductImgLink(uri.toString());
                         pc.setProductQtySold(0);
+                        pc.setSupplierEmail(email);
                         db.addProduct(pc);
 
                         Intent i = new Intent();
@@ -88,35 +82,26 @@ public class AddProduct extends AppCompatActivity {
 
         });
 
-        btnAddImaget.setOnClickListener(new View.OnClickListener(){
+        btnAddImaget.setOnClickListener(new View.OnClickListener() {
 
-            public void onClick(View view)
-            {
-                Intent intent = new Intent();
-                // Show only images, no videos or anything else
+            public void onClick(View view) {
+
+                Intent intent;
+
+                if (Build.VERSION.SDK_INT < 19) {
+                    intent = new Intent(Intent.ACTION_GET_CONTENT);
+                } else {
+                    intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                }
+
                 checkWriteToExternalPerms();
                 intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+
             }
 
         });
-    }
-
-    public String locatePath(Uri uri) {
-        if (uri == null) {
-            return null;
-        }
-
-        String[] projection = {MediaStore.Images.Media.DATA};
-        Cursor cursor = managedQuery(uri, projection, null, null, null);
-        if (cursor != null) {
-            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            cursor.moveToFirst();
-            return cursor.getString(column_index);
-        }
-
-         return uri.getPath();
     }
 
     private void checkWriteToExternalPerms() {
@@ -132,23 +117,17 @@ public class AddProduct extends AppCompatActivity {
         } else {
         }
     }
-    private boolean validateField(EditText name, EditText price, EditText qty)
-    {
-        if(!pv.checkBlank(name) && !pv.checkBlank(price) && !pv.checkBlank(qty))
-        {
-            if(!pv.checkIsFloat(price))
-            {
+
+    private boolean validateField(EditText name, EditText price, EditText qty, EditText email) {
+        if (!pv.checkBlank(name) && !pv.checkBlank(price) && !pv.checkBlank(qty) && !pv.checkBlank(email)) {
+            if (!pv.checkIsFloat(price)) {
                 errorMsg.setText("Price is in wrong format");
                 return false;
-            }
-            else
-            {
-                if(!pv.checkIsInteger(qty))
-                {
+            } else {
+                if (!pv.checkIsInteger(qty)) {
                     errorMsg.setText("Quantity is in wrong format");
                     return false;
-                }
-                else {
+                } else {
                     return true;
                 }
             }
@@ -167,18 +146,18 @@ public class AddProduct extends AppCompatActivity {
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
 
             uri = data.getData();
-            String[] projection = { MediaStore.Images.Media.DATA };
+            String[] projection = {MediaStore.Images.Media.DATA};
 
             Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
             cursor.moveToFirst();
 
             int columnIndex = cursor.getColumnIndex(projection[0]);
             String picturePath = cursor.getString(columnIndex); // returns null
+
             cursor.close();
 
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                // Log.d(TAG, String.valueOf(bitmap));
 
                 ImageView imageView = (ImageView) findViewById(R.id.imageView);
                 imageView.setImageBitmap(bitmap);
@@ -187,6 +166,7 @@ public class AddProduct extends AppCompatActivity {
             }
         }
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {

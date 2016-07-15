@@ -1,20 +1,14 @@
 package com.example.android.inventoryapp;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
+import android.widget.Button;
 import android.widget.TextView;
 
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Daemian on 1/7/2016.
@@ -22,9 +16,12 @@ import java.util.List;
 
 public class ProductAdapter extends ArrayAdapter<ProductClass> {
 
+
     public ProductAdapter(Activity context, ArrayList<ProductClass> items) {
         super(context, 0, items);
     }
+
+    ProductDbHelper db = new ProductDbHelper(getContext());
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -35,19 +32,41 @@ public class ProductAdapter extends ArrayAdapter<ProductClass> {
                     R.layout.activity_list_item, parent, false);
         }
 
-        ProductClass currentProduct = getItem(position);
+        final ProductClass currentProduct = getItem(position);
+
+
+        Button btnBuy = (Button) listItemView.findViewById(R.id.buyProd);
 
         TextView tvProductName = (TextView) listItemView.findViewById(R.id.dbProductName);
         tvProductName.setText(currentProduct.getProductName());
 
-        TextView tvProductQty = (TextView) listItemView.findViewById(R.id.dbProductQantity);
+        final TextView tvProductQty = (TextView) listItemView.findViewById(R.id.dbProductQantity);
         tvProductQty.setText(Integer.toString(currentProduct.getProductQty()));
 
         TextView tvProductPrice = (TextView) listItemView.findViewById(R.id.dbProductPrice);
         tvProductPrice.setText(Float.toString(currentProduct.getProductPrice()));
 
-        TextView tvProductSold = (TextView) listItemView.findViewById(R.id.dbProductSold);
+        final TextView tvProductSold = (TextView) listItemView.findViewById(R.id.dbProductSold);
         tvProductSold.setText(Integer.toString(currentProduct.getProductQtySold()));
+
+        btnBuy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int qty = Integer.parseInt(tvProductQty.getText().toString());
+                int sold = Integer.parseInt(tvProductSold.getText().toString());
+
+                if (qty > 0) {
+                    qty--;
+                    sold++;
+                    currentProduct.setProductQtySold(qty);
+                    currentProduct.setProductQty(sold);
+                    tvProductQty.setText(Integer.toString(qty));
+                    tvProductSold.setText(Integer.toString(sold));
+                    db.updateProduct(currentProduct);
+                }
+
+            }
+        });
 
         return listItemView;
     }

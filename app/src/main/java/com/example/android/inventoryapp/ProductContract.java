@@ -23,6 +23,7 @@ public class ProductContract {
         public static final String COLUMN_NAME_PRODUCT_QUANTITY = "prdQty";
         public static final String COLUMN_NAME_PRODUCT_QUANTITY_SOLD = "prdQtySold";
         public static final String COLUMN_NAME_PRODUCT_IMAGE_LINK = "prdImgLink";
+        public static final String COLUMN_NAME_SUPPLIER_EMAIL = "supEmail";
     }
 
 }

@@ -11,7 +11,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ProductDbHelper extends SQLiteOpenHelper {
 
@@ -25,14 +24,14 @@ public class ProductDbHelper extends SQLiteOpenHelper {
         final String COMMA_SEP = ",";
         final String INTEGER_TYPE = " INTEGER";
         final String FLOAT_TYPE = " REAL";
-
         String createTable = "CREATE TABLE " + ProductContract.ProductEntry.TABLE_NAME + " ( " +
                 ProductContract.ProductEntry.COLUMN_NAME_PRODUCT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 ProductContract.ProductEntry.COLUMN_NAME_PRODUCT_NAME + TEXT_TYPE + COMMA_SEP +
                 ProductContract.ProductEntry.COLUMN_NAME_PRODUCT_IMAGE_LINK + TEXT_TYPE + COMMA_SEP +
                 ProductContract.ProductEntry.COLUMN_NAME_PRODUCT_PRICE + FLOAT_TYPE + COMMA_SEP +
                 ProductContract.ProductEntry.COLUMN_NAME_PRODUCT_QUANTITY + INTEGER_TYPE + COMMA_SEP +
-                ProductContract.ProductEntry.COLUMN_NAME_PRODUCT_QUANTITY_SOLD + INTEGER_TYPE+ ");";
+                ProductContract.ProductEntry.COLUMN_NAME_PRODUCT_QUANTITY_SOLD + INTEGER_TYPE + COMMA_SEP +
+                ProductContract.ProductEntry.COLUMN_NAME_SUPPLIER_EMAIL + TEXT_TYPE + ");";
 
         db.execSQL(createTable);
     }
@@ -52,6 +51,7 @@ public class ProductDbHelper extends SQLiteOpenHelper {
         values.put(ProductContract.ProductEntry.COLUMN_NAME_PRODUCT_PRICE, product.getProductPrice());
         values.put(ProductContract.ProductEntry.COLUMN_NAME_PRODUCT_QUANTITY, product.getProductQty());
         values.put(ProductContract.ProductEntry.COLUMN_NAME_PRODUCT_IMAGE_LINK, product.getProductImgLink());
+        values.put(ProductContract.ProductEntry.COLUMN_NAME_SUPPLIER_EMAIL, product.getSupplierEmail());
         // Inserting Row
         db.insert(ProductContract.ProductEntry.TABLE_NAME, null, values);
         //2nd argument is String containing nullColumnHack
@@ -64,37 +64,38 @@ public class ProductDbHelper extends SQLiteOpenHelper {
 
         Cursor cursor = db.query(ProductContract.ProductEntry.TABLE_NAME, new String[]{ProductContract.ProductEntry.COLUMN_NAME_PRODUCT_ID,
                         ProductContract.ProductEntry.COLUMN_NAME_PRODUCT_IMAGE_LINK, ProductContract.ProductEntry.COLUMN_NAME_PRODUCT_QUANTITY_SOLD,
-                        ProductContract.ProductEntry.COLUMN_NAME_PRODUCT_QUANTITY,ProductContract.ProductEntry.COLUMN_NAME_PRODUCT_PRICE,
-                        ProductContract.ProductEntry.COLUMN_NAME_PRODUCT_NAME},
+                        ProductContract.ProductEntry.COLUMN_NAME_PRODUCT_QUANTITY, ProductContract.ProductEntry.COLUMN_NAME_PRODUCT_PRICE,
+                        ProductContract.ProductEntry.COLUMN_NAME_PRODUCT_NAME, ProductContract.ProductEntry.COLUMN_NAME_SUPPLIER_EMAIL},
                 ProductContract.ProductEntry.COLUMN_NAME_PRODUCT_ID + "=?",
                 new String[]{String.valueOf(id)}, null, null, null, null);
         if (cursor != null)
             cursor.moveToFirst();
 
         ProductClass product = new ProductClass(cursor.getInt(0),
-                cursor.getString(1), cursor.getString(2), cursor.getFloat(3), cursor.getInt(4), cursor.getInt(5));
+                cursor.getString(1), cursor.getString(2), cursor.getFloat(3), cursor.getInt(4), cursor.getInt(5), cursor.getString(6));
 
         return product;
     }
 
-    public ArrayList<ProductClass> getAllContacts() {
+    public ArrayList<ProductClass> getAllProducts() {
         ArrayList<ProductClass> productList = new ArrayList<ProductClass>();
         // Select All Query
-        String selectQuery = "SELECT  * FROM " + ProductContract.ProductEntry.TABLE_NAME;
+        String selectQuery = "SELECT * FROM " + ProductContract.ProductEntry.TABLE_NAME + ";";
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
-        // looping through all rows and adding to list
+
         if (cursor.moveToFirst()) {
             do {
                 ProductClass product = new ProductClass();
-                product.setProductID(Integer.parseInt(cursor.getString(0)));
+                product.setProductID(cursor.getInt(0));
                 product.setProductName(cursor.getString(1));
                 product.setProductImgLink(cursor.getString(2));
                 product.setProductPrice(cursor.getFloat(3));
                 product.setProductQty(cursor.getInt(4));
                 product.setProductQtySold((cursor.getInt(5)));
+                product.setSupplierEmail((cursor.getString(6)));
 
                 // Adding contact to list
                 productList.add(product);
@@ -108,7 +109,7 @@ public class ProductDbHelper extends SQLiteOpenHelper {
     public Cursor getHabit() {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String query = "Select * FROM "+ProductContract.ProductEntry.TABLE_NAME+";";
+        String query = "Select * FROM " + ProductContract.ProductEntry.TABLE_NAME + ";";
 
         Cursor cursor = db.rawQuery(query, null);
 
@@ -132,7 +133,7 @@ public class ProductDbHelper extends SQLiteOpenHelper {
     public void deleteProduct(ProductClass product) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(ProductContract.ProductEntry.TABLE_NAME, ProductContract.ProductEntry.COLUMN_NAME_PRODUCT_ID + " = ?",
-                new String[] { String.valueOf(product.getProductID()) });
+                new String[]{String.valueOf(product.getProductID())});
         db.close();
     }
 

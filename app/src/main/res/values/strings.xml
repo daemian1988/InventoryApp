@@ -8,4 +8,5 @@
     <string name="productQuantity">Product quantity:</string>
     <string name="productPrice">Product price:</string>
     <string name="itemSold">Num of item Sold:</string>
+    <string name="supEmail">Supplier email:</string>
 </resources>

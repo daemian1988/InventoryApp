@@ -6,30 +6,38 @@ import java.io.Serializable;
  * Created by Daemian on 6/7/2016.
  */
 
-public class ProductClass implements Serializable{
+public class ProductClass implements Serializable {
 
     private int productID;
     private String productName;
     private String productImgLink;
     private float productPrice;
     private int productQty;
+    private String supplierEmail;
+    private int productQtySold;
 
-    private int productQtySold ;
-
-    public ProductClass(int productID, String productName, String productImgLink, float productPrice, int productQty, int productQtySold)
-    {
+    public ProductClass(int productID, String productName, String productImgLink, float productPrice, int productQty, int productQtySold, String supplierEmail) {
         this.productID = productID;
         this.productName = productName;
         this.productImgLink = productImgLink;
         this.productPrice = productPrice;
         this.productQty = productQty;
         this.productQtySold = productQtySold;
+        this.supplierEmail = supplierEmail;
     }
 
-    public ProductClass()
-    {
+    public ProductClass() {
 
     }
+
+    public String getSupplierEmail() {
+        return supplierEmail;
+    }
+
+    public void setSupplierEmail(String supplierEmail) {
+        this.supplierEmail = supplierEmail;
+    }
+
     public int getProductQtySold() {
         return productQtySold;
     }
@@ -77,10 +85,6 @@ public class ProductClass implements Serializable{
     public void setProductQty(int productQty) {
         this.productQty = productQty;
     }
-
-
-
-
 
 
 }
